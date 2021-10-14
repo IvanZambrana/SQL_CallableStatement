@@ -1,6 +1,8 @@
 
 package t1_r4_callablestatement;
 
+
+import com.mysql.cj.jdbc.CallableStatement;
 import com.mysql.cj.jdbc.DatabaseMetaData;
 import com.mysql.cj.jdbc.result.ResultSetMetaData;
 import java.sql.Connection;
@@ -24,11 +26,12 @@ public class Ejercicio6 {
         boolean exit = false;
         
         //Variables útiles para el menú
-        
+        int codAlumno, codCurso, numCursos;
+        String sql, mesCurso, calification;
         PreparedStatement insercion = null;
         Statement exConsulta = null;
         ResultSet resultado = null;
-        
+        CallableStatement llamada = null;
         int option, row;
         
         try
@@ -50,7 +53,7 @@ public class Ejercicio6 {
            Connection conexion = null;
            Conectar con = new Conectar(sgdb, server, db, user, passw);
            conexion = con.getConnection();
-           java.sql.DatabaseMetaData datos = conexion.getMetaData();
+           //java.sql.DatabaseMetaData datos = conexion.getMetaData();
            
             //Creacion del menu
             while(!exit) {
@@ -71,23 +74,66 @@ public class Ejercicio6 {
                 //Manejo de opciones
                 switch(option){
                     case 1:
+                        //matricula_alumno
                         System.out.println("-EJECUTAR PROCEDIMIENTO matricula_alumno-");
+                        System.out.println("Inserte codigo de alumno: ");
+                        codAlumno = sc.nextInt();
                         
+                        sql = "{ call matricula_alumno(?, ?) }";
+                        llamada = (CallableStatement) conexion.prepareCall(sql);
+                        llamada.registerOutParameter(2, java.sql.Types.INTEGER);
+                        llamada.setInt(1, codAlumno);
+                        
+                        llamada.execute();
+                        numCursos = llamada.getInt(2);
+                        
+                        if(numCursos != 0)
+                            System.out.println("Numero de asignaturas que cursa: " + numCursos);
+                        else
+                            System.out.println("El alumno no cursa ninguna asignatura.");
                         System.out.println("------------------------------");
                         break;
 
 
                     case 2:
                         System.out.println("-EJECUTAR PROCEDIMIENTO fecha_comienzo-");
-                       
+                       System.out.println("Inserte codigo del curso: ");
+                        codCurso = sc.nextInt();
+                        
+                        sql = "{ call fecha_comienzo(?, ?) }";
+                        llamada = (CallableStatement) conexion.prepareCall(sql);
+                        llamada.registerOutParameter(2, java.sql.Types.VARCHAR);
+                        llamada.setInt(1, codCurso);
+                        
+                        llamada.execute();
+                        mesCurso = llamada.getString(2);
+                        
+                        if(mesCurso != null)
+                            System.out.println("El curso comienza en " + mesCurso);
+                        else
+                            System.out.println("El curso seleccionado no tiene fecha de comienzo.");
                         System.out.println("------------------------------");
                         break;
 
                     case 3:
                         System.out.println("-EJECUTAR FUNCION calificacion-");
+                        System.out.println("Inserte codigo del curso: ");
+                        codCurso = sc.nextInt();
+                        System.out.println("Inserte codigo de alumno: ");
+                        codAlumno = sc.nextInt();
+                        
+                        sql = "{? = call calificacion(?, ?)}";
+                        llamada = (CallableStatement) conexion.prepareCall(sql);
+                        //llamada.registerOutParameter(1, java.sql.Types.VARCHAR);
+                        llamada.setInt(2, codCurso);
+                        llamada.setInt(3, codAlumno);
+                        llamada.registerOutParameter(1, java.sql.Types.VARCHAR);
+                        llamada.execute();
+                        calification = llamada.getString(1);
+                        //mesCurso = llamada.getString(2);
                         
                         
-
+                        System.out.println(calification);
                         System.out.println("------------------------------");
                         break;
 
