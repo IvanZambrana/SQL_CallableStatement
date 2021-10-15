@@ -130,8 +130,6 @@ public class Ejercicio6 {
                         llamada.registerOutParameter(1, java.sql.Types.VARCHAR);
                         llamada.execute();
                         calification = llamada.getString(1);
-                        //mesCurso = llamada.getString(2);
-                        
                         
                         System.out.println(calification);
                         System.out.println("------------------------------");
